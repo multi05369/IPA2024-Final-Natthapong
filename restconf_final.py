@@ -66,40 +66,121 @@ def delete():
         print('Error. Status Code: {}'.format(resp.status_code))
 
 
-# def enable():
-#     yangConfig = <!!!REPLACEME with YANG data!!!>
+def enable():
+    # 1) Read current admin state
+    state_resp = requests.get(
+        api_url,
+        auth=basicauth,
+        headers=headers,
+        verify=False
+    )
 
-#     resp = requests.<!!!REPLACEME with the proper HTTP Method!!!>(
-#         <!!!REPLACEME with URL!!!>, 
-#         data=json.dumps(<!!!REPLACEME with yangConfig!!!>), 
-#         auth=basicauth, 
-#         headers=<!!!REPLACEME with HTTP Header!!!>, 
-#         verify=False
-#         )
+    if state_resp.status_code == 404:
+        print("STATUS NOT FOUND: 404")
+        return "Cannot enable: Interface loopback 66070101 not found"
 
-#     if(resp.status_code >= 200 and resp.status_code <= 299):
-#         print("STATUS OK: {}".format(resp.status_code))
-#         return "<!!!REPLACEME with proper message!!!>"
-#     else:
-#         print('Error. Status Code: {}'.format(resp.status_code))
+    if 200 <= state_resp.status_code <= 299:
+        data = {}
+        try:
+            data = state_resp.json().get("ietf-interfaces:interface", {})
+        except Exception:
+            pass
+        currently_enabled = bool(data.get("enabled", False))
+
+        # 2) If already enabled, report it
+        if currently_enabled:
+            return "Cannot enable: Interface loopback 66070101"
+
+        # 3) Otherwise, patch to enable
+        yangConfig = {
+            "ietf-interfaces:interface": {
+                "enabled": True
+            }
+        }
+        resp = requests.patch(
+            api_url,
+            data=json.dumps(yangConfig),
+            auth=basicauth,
+            headers=headers,
+            verify=False
+        )
+
+        if 200 <= resp.status_code <= 299:
+            print("STATUS OK: {}".format(resp.status_code))
+            return "Interface loopback 66070101 is enabled successfully"
+        else:
+            print('Error. Status Code: {}'.format(resp.status_code))
+            try:
+                print(resp.text)
+            except Exception:
+                pass
+            return "Cannot enable: Interface loopback 66070101"
+    else:
+        print('Error. Status Code (GET): {}'.format(state_resp.status_code))
+        try:
+            print(state_resp.text)
+        except Exception:
+            pass
+        return "Cannot enable: failed to read current state"
 
 
-# def disable():
-#     yangConfig = <!!!REPLACEME with YANG data!!!>
+def disable():
+    # 1) Read current admin state
+    state_resp = requests.get(
+        api_url,
+        auth=basicauth,
+        headers=headers,
+        verify=False
+    )
 
-#     resp = requests.<!!!REPLACEME with the proper HTTP Method!!!>(
-#         <!!!REPLACEME with URL!!!>, 
-#         data=json.dumps(<!!!REPLACEME with yangConfig!!!>), 
-#         auth=basicauth, 
-#         headers=<!!!REPLACEME with HTTP Header!!!>, 
-#         verify=False
-#         )
+    if state_resp.status_code == 404:
+        # Interface not found; choose the message you prefer
+        print("STATUS NOT FOUND: 404")
+        return "Cannot disable: Interface loopback 66070101 not found"
 
-#     if(resp.status_code >= 200 and resp.status_code <= 299):
-#         print("STATUS OK: {}".format(resp.status_code))
-#         return "<!!!REPLACEME with proper message!!!>"
-#     else:
-#         print('Error. Status Code: {}'.format(resp.status_code))
+    if 200 <= state_resp.status_code <= 299:
+        data = {}
+        try:
+            data = state_resp.json().get("ietf-interfaces:interface", {})
+        except Exception:
+            pass
+        currently_enabled = bool(data.get("enabled", False))
+
+        # 2) If already disabled, report it
+        if not currently_enabled:
+            return "Cannot shutdown: Interface loopback 66070101"
+
+        # 3) Otherwise, patch to disable
+        yangConfig = {
+            "ietf-interfaces:interface": {
+                "enabled": False
+            }
+        }
+        resp = requests.patch(
+            api_url,
+            data=json.dumps(yangConfig),
+            auth=basicauth,
+            headers=headers,
+            verify=False
+        )
+
+        if 200 <= resp.status_code <= 299:
+            print("STATUS OK: {}".format(resp.status_code))
+            return "Interface loopback 66070101 is shutdowned successfully"
+        else:
+            print('Error. Status Code: {}'.format(resp.status_code))
+            try:
+                print(resp.text)
+            except Exception:
+                pass
+            return "Cannot shutdown: Interface loopback 66070101"
+    else:
+        print('Error. Status Code (GET): {}'.format(state_resp.status_code))
+        try:
+            print(state_resp.text)
+        except Exception:
+            pass
+        return "Cannot disable: failed to read current state"
 
 
 # def status():

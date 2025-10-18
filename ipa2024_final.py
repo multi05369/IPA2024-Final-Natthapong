@@ -28,6 +28,22 @@ roomIdToGetMessages = (
     "Y2lzY29zcGFyazovL3VybjpURUFNOnVzLXdlc3QtMl9yL1JPT00vYmQwODczMTAtNmMyNi0xMWYwLWE1MWMtNzkzZDM2ZjZjM2Zm"
 )
 
+def post_message_to_webex(roomId, message):
+    reply = requests.post(
+        "https://webexapis.com/v1/messages",
+        headers={
+            "Authorization": f"Bearer {ACCESS_TOKEN}",
+            "Content-Type": "application/json",
+        },
+        data=json.dumps(
+            {
+                "roomId": roomId,
+                "markdown": message,
+            }
+        ),
+    )
+    return reply
+
 while True:
     # always add 1 second of delay to the loop to not go over a rate limit of API calls
     time.sleep(1)
@@ -83,21 +99,29 @@ while True:
         if command == "create":
             responseMessage = restconf.create()
             if responseMessage:
-                reply = requests.post(
-                "https://webexapis.com/v1/messages",
-                headers={
-                    "Authorization": f"Bearer {ACCESS_TOKEN}",
-                    "Content-Type": "application/json",
-                },
-                data=json.dumps({
-                    "roomId": roomIdToGetMessages,
-                    "text": responseMessage,
-                }),
-            )
+                reply = post_message_to_webex(roomIdToGetMessages, responseMessage)
                 if reply.status_code != 200:
                     print("Webex POST failed:", reply.status_code, reply.text)
         elif command == "delete":
             responseMessage = restconf.delete()
+            if responseMessage:
+                reply = post_message_to_webex(roomIdToGetMessages, responseMessage)
+                if reply.status_code != 200:
+                    print("Webex POST failed:", reply.status_code, reply.text)
+        elif command == "enable":
+            responseMessage = restconf.enable()
+            if responseMessage:
+                reply = post_message_to_webex(roomIdToGetMessages, responseMessage)
+                if reply.status_code != 200:
+                    print("Webex POST failed:", reply.status_code, reply.text)
+        elif command == "disable":
+            responseMessage = restconf.disable()
+            if responseMessage:
+                reply = post_message_to_webex(roomIdToGetMessages, responseMessage)
+                if reply.status_code != 200:
+                    print("Webex POST failed:", reply.status_code, reply.text)
+        elif command == "status":
+            responseMessage = restconf.status()
             if responseMessage:
                 reply = requests.post(
                 "https://webexapis.com/v1/messages",
@@ -112,12 +136,6 @@ while True:
             )
                 if reply.status_code != 200:
                     print("Webex POST failed:", reply.status_code, reply.text)
-        elif command == "enable":
-            responseMessage = restconf.enable()
-        elif command == "disable":
-            responseMessage = restconf.disable()
-        elif command == "status":
-            responseMessage = restconf.status()
         elif command == "gigabit_status":
             responseMessage = restconf.gigabit_status()
         elif command == "showrun":
