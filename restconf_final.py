@@ -43,7 +43,7 @@ def create():
 
     if(resp.status_code >= 200 and resp.status_code <= 299):
         print("STATUS OK: {}".format(resp.status_code))
-        return "Interface loopback 66070101 is created successfully" if resp.status_code == 201 else "Interface loopback 66070101 already exists"
+        return "Interface loopback 66070101 is created successfully" if resp.status_code == 201 else "Cannot create: Interface loopback 66070101"
     else:
         print('Error. Status Code: {}'.format(resp.status_code))
 
