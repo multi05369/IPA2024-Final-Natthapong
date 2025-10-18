@@ -98,6 +98,20 @@ while True:
                     print("Webex POST failed:", reply.status_code, reply.text)
         elif command == "delete":
             responseMessage = restconf.delete()
+            if responseMessage:
+                reply = requests.post(
+                "https://webexapis.com/v1/messages",
+                headers={
+                    "Authorization": f"Bearer {ACCESS_TOKEN}",
+                    "Content-Type": "application/json",
+                },
+                data=json.dumps({
+                    "roomId": roomIdToGetMessages,
+                    "text": responseMessage,
+                }),
+            )
+                if reply.status_code != 200:
+                    print("Webex POST failed:", reply.status_code, reply.text)
         elif command == "enable":
             responseMessage = restconf.enable()
         elif command == "disable":
