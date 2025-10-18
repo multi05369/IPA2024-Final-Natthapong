@@ -19,16 +19,29 @@ def gigabit_status():
         up = 0
         down = 0
         admin_down = 0
-        result = ssh.send_command("<!!!REPLACEME with proper command!!!>", use_textfsm=True)
+        result = ssh.send_command("show ip interface brief", use_textfsm=True)
+        phase = []
         for status in result:
-            if <!!!Write code here!!!>:
-                <!!!Write code here!!!>
-                if <!!!Write code here!!!> == "up":
-                    up += 1
-                elif <!!!Write code here!!!> == "down":
-                    down += 1
-                elif <!!!Write code here!!!> == "administratively down":
-                    admin_down += 1
-        ans = <!!!Write code here!!!>
-        pprint(ans)
-        return ans
+            iface = status.get("interface", "")
+            if status["interface"].startswith("GigabitEthernet"):
+                    if status["status"] == "up":
+                        up += 1
+                        norm = "up"
+                    elif status["status"] == "down":
+                        down += 1
+                        norm = "down"
+                    elif status["status"] == "administratively down":
+                        admin_down += 1
+                        norm = "administratively down"
+                    phase.append(f"{iface} {norm}")
+        ans = {
+            "up": up,
+            "down": down,
+            "administratively_down": admin_down
+        }
+        detail = ", ".join(phase)
+        summary = f"-> {up} up, {down} down, {admin_down} administratively down"
+        ansText = f"{detail} {summary}"
+        print(ansText)
+        return ansText
+

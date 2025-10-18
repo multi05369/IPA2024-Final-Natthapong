@@ -12,6 +12,7 @@ import time
 import os
 import restconf_final as restconf
 import dotenv
+import netmiko_final as netmiko
 dotenv.load_dotenv()
 
 #######################################################################################
@@ -127,7 +128,11 @@ while True:
                 if reply.status_code != 200:
                     print("Webex POST failed:", reply.status_code, reply.text)
         elif command == "gigabit_status":
-            responseMessage = restconf.gigabit_status()
+            responseMessage = netmiko.gigabit_status()
+            if responseMessage:
+                reply = post_message_to_webex(roomIdToGetMessages, responseMessage)
+                if reply.status_code != 200:
+                    print("Webex POST failed:", reply.status_code, reply.text)
         elif command == "showrun":
             responseMessage = restconf.showrun()
         else:
