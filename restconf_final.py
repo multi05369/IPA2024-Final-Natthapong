@@ -183,27 +183,58 @@ def disable():
         return "Cannot disable: failed to read current state"
 
 
-# def status():
-#     api_url_status = "<!!!REPLACEME with URL of RESTCONF Operational API!!!>"
+def status():
+    api_url_status = "https://10.0.15.61/restconf/data/ietf-interfaces:interfaces/interface=Loopback66070101"
 
-#     resp = requests.<!!!REPLACEME with the proper HTTP Method!!!>(
-#         <!!!REPLACEME with URL!!!>, 
-#         auth=basicauth, 
-#         headers=<!!!REPLACEME with HTTP Header!!!>, 
-#         verify=False
-#         )
+    resp = requests.get(
+        api_url_status,
+        auth=basicauth,
+        headers=headers,
+        verify=False
+    )
 
-#     if(resp.status_code >= 200 and resp.status_code <= 299):
-#         print("STATUS OK: {}".format(resp.status_code))
-#         response_json = resp.json()
-#         admin_status = <!!!REPLACEME!!!>
-#         oper_status = <!!!REPLACEME!!!>
-#         if admin_status == 'up' and oper_status == 'up':
-#             return "<!!!REPLACEME with proper message!!!>"
-#         elif admin_status == 'down' and oper_status == 'down':
-#             return "<!!!REPLACEME with proper message!!!>"
-#     elif(resp.status_code == 404):
-#         print("STATUS NOT FOUND: {}".format(resp.status_code))
-#         return "<!!!REPLACEME with proper message!!!>"
-#     else:
-#         print('Error. Status Code: {}'.format(resp.status_code))
+    if (resp.status_code >= 200 and resp.status_code <= 299):
+        print("STATUS OK: {}".format(resp.status_code))
+        data = {}
+        try:
+            data = resp.json().get("ietf-interfaces:interface", {})
+        except Exception:
+            pass
+
+        # admin-status from 'enabled' (True -> up, False -> down)
+        admin_status = 'up' if data.get('enabled') else 'down'
+
+        # oper-status may or may not be present in this resource on your device.
+        # Default to 'unknown' if missing; handle the logic per your requirement.
+        oper_status = data.get('oper-status', 'unknown')
+
+        # Conditions per requirement:
+        # - If interface exists and is up -> "enabled"
+        if admin_status == 'up' and oper_status == 'up':
+            return "Interface loopback 66070101 is enabled"
+
+        # - If interface exists and admin and oper are both down -> "disabled"
+        if admin_status == 'down' and oper_status == 'down':
+            return "Interface loopback 66070101 is disabled"
+
+        # Fallbacks if oper-status is unknown or mixed states:
+        # Treat enabled True with unknown oper as enabled
+        if admin_status == 'up' and oper_status == 'unknown':
+            return "Interface loopback 66070101 is enabled"
+
+        # Treat enabled False with unknown oper as disabled
+        if admin_status == 'down' and oper_status == 'unknown':
+            return "Interface loopback 66070101 is disabled"
+
+        # Mixed case (e.g., admin up, oper down): report disabled to be conservative
+        if admin_status == 'down' or oper_status == 'down':
+            return "Interface loopback 66070101 is disabled"
+
+        # Otherwise treat as enabled
+        return "Interface loopback 66070101 is enabled"
+
+    elif (resp.status_code == 404):
+        print("STATUS NOT FOUND: {}".format(resp.status_code))
+        return "No Interface loopback 66070101"
+    else:
+        print('Error. Status Code: {}'.format(resp.status_code))

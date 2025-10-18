@@ -123,17 +123,7 @@ while True:
         elif command == "status":
             responseMessage = restconf.status()
             if responseMessage:
-                reply = requests.post(
-                "https://webexapis.com/v1/messages",
-                headers={
-                    "Authorization": f"Bearer {ACCESS_TOKEN}",
-                    "Content-Type": "application/json",
-                },
-                data=json.dumps({
-                    "roomId": roomIdToGetMessages,
-                    "text": responseMessage,
-                }),
-            )
+                reply = post_message_to_webex(roomIdToGetMessages, responseMessage)
                 if reply.status_code != 200:
                     print("Webex POST failed:", reply.status_code, reply.text)
         elif command == "gigabit_status":
