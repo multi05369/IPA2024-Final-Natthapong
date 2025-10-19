@@ -13,6 +13,7 @@ import os
 import restconf_final as restconf
 import dotenv
 import netmiko_final as netmiko
+import ansible_final as ansible
 dotenv.load_dotenv()
 
 #######################################################################################
@@ -134,7 +135,40 @@ while True:
                 if reply.status_code != 200:
                     print("Webex POST failed:", reply.status_code, reply.text)
         elif command == "showrun":
-            responseMessage = restconf.showrun()
+            responseMessage = ansible.showrun()
+            if responseMessage:
+                # responseMessage is either filename or 'Error: Ansible'
+                if responseMessage == "Error: Ansible":
+                    # send text only (no attachment)
+                    reply = post_message_to_webex(roomIdToGetMessages, "Error: Ansible")
+                    if reply.status_code != 200:
+                        print("Webex POST failed:", reply.status_code, reply.text)
+                else:
+                    # Attach file
+                    from requests_toolbelt.multipart.encoder import MultipartEncoder
+
+                    filename = responseMessage  # e.g., 'show_run_66070101_R1-Exam.txt'
+                    # Prepare multipart data for Webex attachments
+                    with open(filename, "rb") as f:
+                        m = MultipartEncoder(
+                            fields={
+                                "roomId": roomIdToGetMessages,
+                                "text": "show running config",
+                                # 'files' must be a tuple: (filename, fileobj, mime-type)
+                                "files": (os.path.basename(filename), f, "text/plain"),
+                            }
+                        )
+                        headers = {
+                            "Authorization": f"Bearer {ACCESS_TOKEN}",
+                            "Content-Type": m.content_type,
+                        }
+                        r = requests.post(
+                            "https://webexapis.com/v1/messages",
+                            data=m,
+                            headers=headers,
+                        )
+                        if r.status_code != 200:
+                            print("Webex POST failed:", r.status_code, r.text)
         else:
             responseMessage = "Error: No command or unknown command"
         
