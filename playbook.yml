@@ -1,21 +1,35 @@
 ---
-- name: Backup running config router
-  hosts: ExamRouter
+- name: Backup running config via system ssh
+  hosts: localhost
   gather_facts: false
-  connection: ansible.netcommon.network_cli
-
   vars:
-    ansible_network_os: cisco.ios.ios
-
+    router_ip: 192.168.1.62
+    router_user: admin
+    router_pass: cisco
+    ssh_args: >-
+      -o StrictHostKeyChecking=no
+      -o KexAlgorithms=+diffie-hellman-group14-sha1
+      -o HostKeyAlgorithms=+ssh-rsa
+      -o Ciphers=+aes256-ctr,aes192-ctr,aes128-ctr
   tasks:
-    - name: Get running-config from device
-      cisco.ios.ios_command:
-        commands:
-          - show run
-      register: config
+    - name: Fetch running-config (heredoc)
+      ansible.builtin.shell: |
+        sshpass -p '{{ router_pass }}' ssh -tt {{ ssh_args }} {{ router_user }}@{{ router_ip }} <<'EOF'
+        terminal length 0
+        show running-config
+        exit
+        EOF
+      register: run
+      changed_when: false
+      failed_when: run.rc != 0 or (run.stdout is not defined)
 
-    - name: Save running-config to local file
+    - name: Debug first 3 lines (for visibility)
+      ansible.builtin.debug:
+        msg: "{{ run.stdout.split('\n')[:3] }}"
+
+    - name: Save to local file
       ansible.builtin.copy:
-        content: "{{ config.stdout[0] }}"
-        dest: "show_run_66070101_R1-Exam.txt"
+        content: "{{ run.stdout }}"
+        dest: show_run_66070101_R1-Exam.txt
       delegate_to: localhost
+      when: run.stdout | length > 0

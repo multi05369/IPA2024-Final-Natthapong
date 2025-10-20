@@ -1,0 +1,218 @@
+
+
+CSR1kv#terminal length 0
+CSR1kv#show running-config
+Building configuration...
+
+Current configuration : 4137 bytes
+!
+! Last configuration change at 06:33:06 UTC Mon Oct 20 2025
+!
+version 16.9
+service config
+service timestamps debug datetime msec
+service timestamps log datetime msec
+platform qfp utilization monitor load 80
+no platform punt-keepalive disable-kernel-core
+platform console serial
+!
+hostname CSR1kv
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+login on-success log
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+! 
+! 
+! 
+! 
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+crypto pki trustpoint TP-self-signed-1832236114
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-1832236114
+ revocation-check none
+ rsakeypair TP-self-signed-1832236114
+!
+!
+crypto pki certificate chain TP-self-signed-1832236114
+ certificate self-signed 01
+  30820330 30820218 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 31383332 32333631 3134301E 170D3235 31303230 30363030 
+  35365A17 0D333030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D31 38333232 
+  33363131 34308201 22300D06 092A8648 86F70D01 01010500 0382010F 00308201 
+  0A028201 0100BA83 A58561CD 1B0508C5 0C4D10C9 02A0C81B BE417B20 A635DE5E 
+  0A2ACF05 77994109 BA0B7094 9EE93148 433F415D AA297E75 100F8DD6 B23697FB 
+  BF4A72B7 E4B18DA8 3FEF88CE F6A5F89F 8CE84376 1107F8EE 8A78CFFB 8C5F470F 
+  8DEC8962 13B62FE5 4623DC99 860B5CED D21342E5 71551946 685D2D53 879450D6 
+  84535DBE 4A5F051F FD863C5D 27DFD532 E8D7D9C7 5992D552 326A2D89 D9329FDD 
+  0C29120F A28CCBEB 75737BCC 00D45238 9D7694E9 C615DD5C C560C6E4 978F88CD 
+  49C402F9 AB5D71DC 5DCB4FC3 59C1F5C9 EEAD2E47 DEDD4CE0 4075FD0B A37172E8 
+  92A5B35D C119F1BC 28DAF85B 83081A3D FD3F4417 3A2788D4 58C52BBB E2795D2C 
+  DFC4C0D5 FDC50203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 
+  301F0603 551D2304 18301680 149A6DC4 D34F2652 D4808707 8A7CC020 C1DA513F 
+  12301D06 03551D0E 04160414 9A6DC4D3 4F2652D4 8087078A 7CC020C1 DA513F12 
+  300D0609 2A864886 F70D0101 05050003 82010100 67549940 B7123BFA E29C45AB 
+  7618CEB3 57084948 FC89F175 7C950C95 3F07C87E 6CD9D312 04178945 F0ACBC78 
+  1600BC80 8A6A3782 88DEF9AB 735353C9 6B469F87 A9D8F0C1 F94972EF 8C3D202D 
+  241E7D66 E16AA5BC 910936C6 1C186452 D0405CFB E084670C 54E88772 2B0C6721 
+  A0CAEA63 6A44769A CC02BB78 54AE3AFD 632616D4 EBDCE06E AC883C5D A80CFBFD 
+  2420EE7F 20878186 7BDE79C8 4A6346FA BE4EFC2E 18630839 A4C346F0 CAC7FB63 
+  3E552060 D13D9D34 5DD670BD 7D2C7F18 50EF8291 AD1613C8 CB0D0BEE 6EDE2C5C 
+  56F35A87 A42B1D34 6B7E35AF 91709EDD 40CFEFAE A1A61BB5 808E9E26 4F617550 
+  73055965 BC5A1864 3E0D105C 90DCB312 97CEF27A
+  	quit
+!
+!
+!
+!
+!
+!
+!
+!
+license udi pid CSR1000V sn 9M21JJ928VD
+no license smart enable
+diagnostic bootup level minimal
+!
+spanning-tree extend system-id
+!
+netconf-yang
+!
+!
+username admin privilege 15 secret 5 $1$5OgY$9fG4ggnqESuqIL5oWLUWb1
+!
+redundancy
+!
+!
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+!
+interface GigabitEthernet1
+ ip address dhcp
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet2
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet3
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet4
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet5
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet6
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+ip forward-protocol nd
+ip http server
+ip http authentication local
+ip http secure-server
+ip http client source-interface GigabitEthernet1
+!
+ip ssh version 2
+ip ssh server algorithm mac hmac-sha2-256 hmac-sha2-512 hmac-sha1
+ip ssh server algorithm encryption aes256-ctr aes192-ctr aes128-ctr
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+line con 0
+ stopbits 1
+line vty 0 4
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+line vty 5 15
+ exec-timeout 0 0
+ logging synchronous
+ login local
+ transport input ssh
+!
+!
+!
+!
+!
+!
+end
+
+CSR1kv#exit
